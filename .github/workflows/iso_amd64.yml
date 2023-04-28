@@ -1,0 +1,61 @@
+name: Evolinx ISO ( AMD64 )
+
+on:
+    schedule:
+        - cron: '0 0 * * 1'
+    workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+    - name: prepare build env
+      run: |
+        # Basics
+        # Clone and install required deps
+        mkdir -p ~/EVOLINX
+        cd ~/EVOLINX
+        # Install repo tool
+        sudo apt-get -y install repo
+        # Sync the dev repo
+        repo init -u https://git.martinvlba.eu/Evolinx/internal_manifest.git -b master
+        repo sync
+        ln -sf build/toolset/envsetup.sh envsetup
+    - name: Setup docker
+      run: |
+        cd ~/EVOLINX
+        export P_ROOT=$(pwd)
+        # Pull drunk docker image and make new container of it
+        sudo docker pull hilledkinged/evolinx:latest
+        docker container create \
+        --name work01 \
+        --volume $P_ROOT:/home/developer/EVOLINX \
+        --tty \
+        --privileged \
+        --device=/dev/loop-control:/dev/loop-control \
+        --device=/dev/loop0:/dev/loop0 \
+        hilledkinged/evolinx /bin/bash
+        sleep 1
+        sudo docker start work01 >/dev/null
+        sleep 1
+        # Replace bottle.conf
+        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "cp -f /home/developer/EVOLINX/build/docker/developing/bottle/amd64_bottle.conf /etc/bottle.conf"
+        # Install some packages needed to make image
+        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "bottle --noconfirm --disable-download-timeout -Sy sudo base-install-scripts dracut libisoburn libisofs"
+        # Usual patching that needs to be done
+        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "echo '%wheel ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers"
+        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "useradd developer -m -g wheel"
+        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "chown -R developer /home/developer/EVOLINX"
+        # Reinstall linux pkg so whe have modules back as needed ( Needs to be done twice as of hax were done for docker )
+        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "bottle --noconfirm --disable-download-timeout -Sy linux linux-firmware"
+        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "bottle --noconfirm --disable-download-timeout -Sy linux linux-firmware"
+    - name: Build ISO
+      run: |
+        # Build the packages in docker env
+        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 su developer -c "cd ~/EVOLINX && ./envsetup --mkiso-clean-cli"
+    - name: Upload iso
+      uses: actions/upload-artifact@v3
+      with:
+        path: ~/EVOLINX/evolinx.iso
