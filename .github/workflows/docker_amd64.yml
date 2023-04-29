@@ -47,9 +47,9 @@ jobs:
         sleep 1
 
         # Patching rootfs for proper usage
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "chown -R developer /home/developer/EVOLINX"
         sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "rm -rf /var/lib/bottle/sync/*"
         sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "useradd developer -m -g wheel"
+        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "chown -R developer /home/developer/EVOLINX"
         sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "cp -f /home/developer/EVOLINX/developing/bottle/amd64_bottle.conf /etc/bottle.conf"
         sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "bottle -Syu --needed --noconfirm --disable-download-timeout"
         sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "bottle --needed --noconfirm --disable-download-timeout -Sy docker base-install-scripts sudo nano mpfr mpc base-devel m4 git libisoburn dialog syslinux"
