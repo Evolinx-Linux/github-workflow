@@ -5,6 +5,7 @@
 #### This repository includes following workflows
 
 * Live ISO: amd64 + cli only
+* Docker image: amd64 builder
 
 #### To be remembered
 
