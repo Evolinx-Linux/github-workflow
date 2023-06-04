@@ -2,6 +2,11 @@
 
 ---
 
+[![Evolinx ISO ( AMD64 )](https://github.com/Evolinx-Linux/github-workflow/actions/workflows/iso_amd64.yml/badge.svg)](https://github.com/Evolinx-Linux/github-workflow/actions/workflows/iso_amd64.yml)
+[![Evolinx - AMD64](https://github.com/Evolinx-Linux/github-workflow/actions/workflows/docker_amd64.yml/badge.svg)](https://github.com/Evolinx-Linux/github-workflow/actions/workflows/docker_amd64.yml)
+
+---
+
 #### This repository includes following workflows
 
 * Live ISO: amd64 + cli only
