@@ -46,6 +46,9 @@ jobs:
         sudo docker start work01 >/dev/null
         sleep 1
 
+        # Force install new copy of bottle conf ( stable ) TODO: Remove this in the future
+        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "cp -f /home/developer/EVOLINX/developing/bottle/stable_amd64_bottle.conf /etc/bottle.conf"
+
         # Patching rootfs for proper usage
         sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "rm -rf /var/lib/bottle/sync/*"
         sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "useradd developer -m -g wheel"
@@ -57,16 +60,10 @@ jobs:
 
         sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "chown -R developer /home/developer/EVOLINX"
 
-    - name: Create new rootfs
+    - name: Build and install docker image
       run: |
-        # Lets make minimal env with only attr for faster testing times
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 su developer -c "cd ~/EVOLINX && sudo mkdir -p rootfs"
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 su developer -c "cd ~/EVOLINX && sudo base-strap rootfs base-chroot linux"
-
-        # Cut down all un-needed files
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 su developer -c "cd ~/EVOLINX && sudo rm -rf rootfs/lib/modules/*/kernel"
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 su developer -c "cd ~/EVOLINX && sudo rm -rf rootfs/lib/firmware/*"
-
+        # Start the scriptlet
+        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 su developer -c "cd ~/EVOLINX/imgsys && ./build.sh --amd64-image
     - name: Login to docker.io
       uses: docker/login-action@v1
       with:
