@@ -63,7 +63,7 @@ jobs:
     - name: Build and install docker image
       run: |
         # Start the scriptlet
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 su developer -c "cd ~/EVOLINX/imgsys && ./build.sh --amd64-image"
+        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 su developer -c "cd ~/EVOLINX/imgsys && ./build.sh --is-docker --amd64-image"
     - name: Login to docker.io
       uses: docker/login-action@v1
       with:
