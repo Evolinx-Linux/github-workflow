@@ -27,6 +27,9 @@ jobs:
 
     - name: Setup bootstrap environment
       run: |
+        export U_ID="$(id -u)"
+        export U_GROUP="$(id -g)"
+        
         cd ~/EVOLINX
         export P_ROOT=$(pwd)
 
@@ -51,7 +54,7 @@ jobs:
 
         # Patching rootfs for proper usage
         sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "rm -rf /var/lib/bottle/sync/*"
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "useradd developer -m -g wheel"
+        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "useradd developer -m -g wheel --uid=${U_ID} --gid=${U_GROUP}"
         sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "chown -R developer /home/developer/EVOLINX"
         sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "bottle -Syu --needed --noconfirm --disable-download-timeout"
         sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "bottle --needed --noconfirm --disable-download-timeout -Sy docker base-install-scripts sudo nano mpfr mpc base-devel m4 git libisoburn dialog syslinux"
