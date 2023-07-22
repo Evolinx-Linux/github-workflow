@@ -26,6 +26,8 @@ jobs:
         git clone https://git.martinvlba.eu/Evolinx/build_docker_developing developing
     - name: Build and install docker image
       run: |
+        cd ~/EVOLINX/imgsys
+        
         # Start the scriptlet
         ./build.sh --amd64-image
     - name: Login to docker.io
