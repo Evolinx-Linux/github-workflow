@@ -24,50 +24,10 @@ jobs:
         ##
         git clone https://git.martinvlba.eu/Evolinx/build_docker_imgsys.git imgsys
         git clone https://git.martinvlba.eu/Evolinx/build_docker_developing developing
-
-    - name: Setup bootstrap environment
-      run: |
-        export U_ID="$(id -u)"
-        export U_GROUP="$(id -g)"
-        
-        cd ~/EVOLINX
-        export P_ROOT=$(pwd)
-
-        # Pull docker image and make new container of it
-        sudo docker pull hilledkinged/evolinx:latest
-        docker container create \
-        --name work01 \
-        --volume $P_ROOT:/home/developer/EVOLINX \
-        --tty \
-        --privileged \
-        --device=/dev/loop-control:/dev/loop-control \
-        --device=/run/docker.sock:/var/run/docker.sock \
-        --device=/dev/loop0:/dev/loop0 \
-        hilledkinged/evolinx /bin/bash
-
-        sleep 1
-        sudo docker start work01 >/dev/null
-        sleep 1
-
-        # Force install new copy of bottle conf ( stable ) TODO: Remove this in the future
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "cp -f /home/developer/EVOLINX/developing/bottle/stable_amd64_bottle.conf /etc/bottle.conf"
-
-        # Patching rootfs for proper usage
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "rm -rf /var/lib/bottle/sync/*"
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "groupadd -f --gid $U_GROUP developer"
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "useradd developer -m -g wheel --uid=${U_ID} --gid=${U_GROUP}"
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "chown -R developer /home/developer/EVOLINX"
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "bottle -Syu --needed --noconfirm --disable-download-timeout"
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "bottle --needed --noconfirm --disable-download-timeout -Sy docker base-install-scripts sudo nano mpfr mpc base-devel m4 git libisoburn dialog syslinux"
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "bash -c /home/developer/EVOLINX/developing/sudo/fix_sudo.sh"
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "bash -c /home/developer/EVOLINX/developing/rootsys/locale.sh"
-
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "chown -R developer /home/developer/EVOLINX"
-
     - name: Build and install docker image
       run: |
         # Start the scriptlet
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "cd /home/developer/EVOLINX/imgsys && ./build.sh --is-docker --amd64-image"
+        ./build.sh --amd64-image
     - name: Login to docker.io
       uses: docker/login-action@v1
       with:
