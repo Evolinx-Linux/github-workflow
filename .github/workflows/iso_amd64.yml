@@ -41,7 +41,7 @@ jobs:
         sudo docker start work01 >/dev/null
         sleep 1
         # Replace bottle.conf
-        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "cp -f /home/developer/EVOLINX/build/docker/developing/bottle/amd64_bottle.conf /etc/bottle.conf"
+        sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "cp -f /home/developer/EVOLINX/build/docker/developing/bottle/stable_amd64_bottle.conf /etc/bottle.conf"
         # Install some packages needed to make image
         sudo docker exec --tty -e PATH=/bin:/sbin:/usr/bin:/usr/sbin work01 /bin/bash -c "bottle --noconfirm --disable-download-timeout -Sy sudo base-install-scripts dracut libisoburn libisofs"
         # Usual patching that needs to be done
