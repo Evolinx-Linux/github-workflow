@@ -41,7 +41,7 @@ jobs:
         --tty \
         --privileged \
         --device=/dev/loop-control:/dev/loop-control \
-        --device=/var/run/docker.sock:/run/docker.sock \
+        --device=/run/docker.sock:/var/run/docker.sock \
         --device=/dev/loop0:/dev/loop0 \
         hilledkinged/evolinx /bin/bash
 
