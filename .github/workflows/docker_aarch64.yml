@@ -1,0 +1,41 @@
+name: Evolinx DOCKER ( AMD64 )
+
+on:
+    schedule:
+        - cron: '0 0 * * *'
+    workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+    - name: prepare build env
+      run: |
+        # Basics
+        mkdir -p ~/EVOLINX
+        cd ~/EVOLINX
+
+        ##
+        # NOTE: Will be used for
+        # imgsys - builds docker images + can push the built images
+        # developing - Includes all docker image files for build
+        ##
+        git clone https://git.martinvlba.eu/Evolinx/build_docker_imgsys.git imgsys
+        git clone https://git.martinvlba.eu/Evolinx/build_docker_developing developing
+    - name: Build and install docker image
+      run: |
+        cd ~/EVOLINX/imgsys
+        
+        # Start the scriptlet
+        ./build.sh --arm64-image
+    - name: Login to docker.io
+      uses: docker/login-action@v1
+      with:
+        username: hilledkinged
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    - name: Push docker image
+      run: |
+        docker image push hilledkinged/evolinx:aarch64
