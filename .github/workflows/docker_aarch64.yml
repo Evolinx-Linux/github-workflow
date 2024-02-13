@@ -1,4 +1,4 @@
-name: Evolinx DOCKER ( AMD64 )
+name: Evolinx DOCKER ( AARCH64 )
 
 on:
     schedule:
