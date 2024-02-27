@@ -1,0 +1,38 @@
+name: BUILD - Evolinx AArch64 sysroot
+
+on:
+    workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+    - name: Install required packages
+      run: |
+        sudo apt update
+        sudo apt install -y build-essential libgmp-dev libmpfr-dev libmpc-dev libisl-dev libncurses5-dev bc git bison flex zstd wget
+    - name: Create simple sysroot
+      run: |
+        # Install bottle for debian
+        wget https://github.com/Evolinx-Linux/Stuff/raw/master/evolinx-dev.deb
+        sudo apt -y install ./evolinx-dev.deb
+        
+        # Make sysroot
+        sudo mkdir -p evoarm/var/lib/bottle
+        wget https://git.martinvlba.eu/Evolinx/build_docker_developing/raw/branch/master/bottle/arm64_bottle.conf
+        sudo bottle -Syw --config arm64_bottle.conf --arch aarch64 -r evoarm/  base-system
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        path: sysroot.tar.gz
+    - name: Upload release
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.TOKEN }}"
+        automatic_release_tag: "latest"
+        prerelease: true
+        title: "Evolinx AArch64 sysroot"
+        files: |
+          sysroot.tar.gz
