@@ -22,7 +22,7 @@ jobs:
         # Make sysroot
         sudo mkdir -p evoarm/var/lib/bottle
         wget https://git.martinvlba.eu/Evolinx/build_docker_developing/raw/branch/master/bottle/arm64_bottle.conf
-        sudo bottle -Sy --noconfirm --config arm64_bottle.conf --arch aarch64 -r evoarm/  base-system
+        sudo bottle -Sy --noconfirm --config arm64_bottle.conf --arch aarch64 -r evoarm/ base-system dracut cpio
         echo "sysroot made"
         
         # Make sysroot itself smaller with deleting cahced packages
